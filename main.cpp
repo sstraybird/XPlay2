@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     demux.Read();
     demux.Clear();
     demux.Close();
-    url = "001111.mp4";
+    url = "v1080.mp4";
     cout<<"demux.Open = "<<demux.Open(url);
     cout << "CopyVPara = " << demux.CopyVPara() << endl;
     cout << "CopyAPara = " << demux.CopyAPara() << endl;
@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 
     XDecode vdecode;
     cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
-    vdecode.Clear();
-    vdecode.Close();
+//    vdecode.Clear();
+//    vdecode.Close();
     XDecode adecode;
     cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
 
@@ -33,6 +33,18 @@ int main(int argc, char *argv[])
     for (;;)
     {
         AVPacket *pkt = demux.Read();
+        if (demux.IsAudio(pkt))
+        {
+            adecode.Send(pkt);
+            AVFrame *frame = adecode.Recv();
+            //cout << "Audio:" << frame << endl;
+        }
+        else
+        {
+            vdecode.Send(pkt);
+            AVFrame *frame = vdecode.Recv();
+            //cout << "Video:" << frame << endl;
+        }
         if (!pkt)break;
     }
     QApplication a(argc, argv);
