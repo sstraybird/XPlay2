@@ -7,6 +7,7 @@ extern "C" {
 }
 #pragma comment(lib,"avformat.lib")
 #pragma comment(lib,"avutil.lib")
+#pragma comment(lib,"avcodec.lib")
 static double r2d(AVRational r)
 {
     return r.den == 0 ? 0 : (double)r.num / (double)r.den;
@@ -80,6 +81,33 @@ bool XDemux::Open(const char *url)
 
 
     return true;
+}
+
+//空间需要调用者释放 ，释放AVPacket对象空间，和数据空间 av_packet_free
+AVPacket *XDemux::Read()
+{
+    mux.lock();
+    if (!ic) //容错
+    {
+        mux.unlock();
+        return 0;
+    }
+    AVPacket *pkt = av_packet_alloc();
+    //读取一帧，并分配空间
+    int re = av_read_frame(ic, pkt);
+    if (re != 0)
+    {
+        mux.unlock();
+        av_packet_free(&pkt);
+        return 0;
+    }
+    //pts转换为毫秒
+    pkt->pts = pkt->pts*(1000 * (r2d(ic->streams[pkt->stream_index]->time_base)));
+    pkt->dts = pkt->dts*(1000 * (r2d(ic->streams[pkt->stream_index]->time_base)));
+    mux.unlock();
+    cout << pkt->pts << " "<<flush;
+    return pkt;
+
 }
 
 XDemux::XDemux()
