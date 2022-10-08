@@ -15,6 +15,7 @@ static double r2d(AVRational r)
 
 bool XDemux::Open(const char *url)
 {
+    Close();
     //参数设置
     AVDictionary *opts = NULL;
     //设置rtsp流已tcp协议打开
@@ -83,6 +84,53 @@ bool XDemux::Open(const char *url)
     return true;
 }
 
+//清空读取缓存
+void XDemux::Clear()
+{
+    mux.lock();
+    if (!ic)
+    {
+        mux.unlock();
+        return ;
+    }
+    //清理读取缓冲
+    avformat_flush(ic);
+    mux.unlock();
+}
+void XDemux::Close()
+{
+    mux.lock();
+    if (!ic)
+    {
+        mux.unlock();
+        return;
+    }
+    avformat_close_input(&ic);
+    //媒体总时长（毫秒）
+    totalMs = 0;
+    mux.unlock();
+}
+
+//seek 位置 pos 0.0 ~1.0
+bool XDemux::Seek(double pos)
+{
+    mux.lock();
+    if (!ic)
+    {
+        mux.unlock();
+        return false;
+    }
+    //清理读取缓冲
+    avformat_flush(ic);
+
+    long long seekPos = 0;
+    seekPos = ic->streams[videoStream]->duration * pos;
+    int re = av_seek_frame(ic, videoStream, seekPos, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_FRAME);
+    mux.unlock();
+    if (re < 0) return false;
+    return true;
+}
+
 //获取视频参数  返回的空间需要清理  avcodec_parameters_free
 AVCodecParameters *XDemux::CopyVPara()
 {
@@ -135,7 +183,7 @@ AVPacket *XDemux::Read()
     pkt->pts = pkt->pts*(1000 * (r2d(ic->streams[pkt->stream_index]->time_base)));
     pkt->dts = pkt->dts*(1000 * (r2d(ic->streams[pkt->stream_index]->time_base)));
     mux.unlock();
-    cout << pkt->pts << " "<<flush;
+    cout << pkt->pts << " "<< endl << flush;
     return pkt;
 
 }
