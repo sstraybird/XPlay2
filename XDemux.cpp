@@ -83,6 +83,36 @@ bool XDemux::Open(const char *url)
     return true;
 }
 
+//获取视频参数  返回的空间需要清理  avcodec_parameters_free
+AVCodecParameters *XDemux::CopyVPara()
+{
+    mux.lock();
+    if (!ic)
+    {
+        mux.unlock();
+        return NULL;
+    }
+    AVCodecParameters *pa = avcodec_parameters_alloc();
+    avcodec_parameters_copy(pa, ic->streams[videoStream]->codecpar);
+    mux.unlock();
+    return pa;
+}
+
+//获取音频参数  返回的空间需要清理 avcodec_parameters_free
+AVCodecParameters *XDemux::CopyAPara()
+{
+    mux.lock();
+    if (!ic)
+    {
+        mux.unlock();
+        return NULL;
+    }
+    AVCodecParameters *pa = avcodec_parameters_alloc();
+    avcodec_parameters_copy(pa, ic->streams[audioStream]->codecpar);
+    mux.unlock();
+    return pa;
+}
+
 //空间需要调用者释放 ，释放AVPacket对象空间，和数据空间 av_packet_free
 AVPacket *XDemux::Read()
 {

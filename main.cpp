@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
     const char *url = "rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp";
     //url = "v1080.mp4";
     cout<<"demux.Open = "<<demux.Open(url);
+    cout << "CopyVPara = " << demux.CopyVPara() << endl;
+    cout << "CopyAPara = " << demux.CopyAPara() << endl;
     for (;;)
     {
         AVPacket *pkt = demux.Read();
