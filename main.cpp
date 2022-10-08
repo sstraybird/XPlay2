@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 #include "XDemux.h"
-
+#include "XDecode.h"
 int main(int argc, char *argv[])
 {
     ///≤‚ ‘XDemux
@@ -21,6 +21,15 @@ int main(int argc, char *argv[])
     cout << "CopyVPara = " << demux.CopyVPara() << endl;
     cout << "CopyAPara = " << demux.CopyAPara() << endl;
     cout << "seek=" << demux.Seek(0.95) << endl;
+
+    XDecode vdecode;
+    cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
+    vdecode.Clear();
+    vdecode.Close();
+    XDecode adecode;
+    cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
+
+
     for (;;)
     {
         AVPacket *pkt = demux.Read();
