@@ -13,3 +13,8 @@ XPlay2::~XPlay2()
     delete ui;
 }
 
+XVideoWidget* XPlay2::getVideo()
+{
+    return ui->video;
+}
+

@@ -55,6 +55,8 @@ bool XDemux::Open(const char *url)
     //获取视频流
     videoStream = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
     AVStream *as = ic->streams[videoStream];
+    width = as->codecpar->width;
+    height = as->codecpar->height;
 
     cout << "=======================================================" << endl;
     cout << videoStream << "视频信息" << endl;

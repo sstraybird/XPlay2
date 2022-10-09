@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui opengl openglextensions
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,13 +18,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     XDecode.cpp \
     XDemux.cpp \
+    XVideoWidget.cpp \
     main.cpp \
     XPlay2.cpp
 
 HEADERS += \
     XDecode.h \
     XDemux.h \
-    XPlay2.h
+    XPlay2.h \
+    XVideoWidget.h
 
 FORMS += \
     XPlay2.ui
