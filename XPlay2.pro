@@ -20,6 +20,7 @@ SOURCES += \
     XAudioThread.cpp \
     XDecode.cpp \
     XDemux.cpp \
+    XDemuxThread.cpp \
     XResample.cpp \
     XVideoThread.cpp \
     XVideoWidget.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     XAudioThread.h \
     XDecode.h \
     XDemux.h \
+    XDemuxThread.h \
     XPlay2.h \
     XResample.h \
     XVideoThread.h \

@@ -10,6 +10,7 @@ using namespace std;
 #include "XAudioPlay.h"
 #include "XAudioThread.h"
 #include "XVideoThread.h"
+#include "XDemuxThread.h"
 class TestThread :public QThread
 {
 public:
@@ -106,7 +107,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-    TestThread tt;
+//    TestThread tt;
 
     QApplication a(argc, argv);
     XPlay2 w;
@@ -115,9 +116,13 @@ int main(int argc, char *argv[])
     //³õÊ¼»¯gl´°¿Ú
 //    w.getVideo()->Init(tt.demux.width,tt.demux.height) ;
 
-    tt.video = w.getVideo();
-    tt.Init();
+//    tt.video = w.getVideo();
+//    tt.Init();
 
-    tt.start();
+//    tt.start();
+
+    XDemuxThread dt;
+    dt.Open("v1080.mp4", w.getVideo());
+    dt.Start();
     return a.exec();
 }
