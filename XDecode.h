@@ -4,7 +4,10 @@
 
 struct AVCodecParameters;
 struct AVCodecContext;
-struct AVFrame;
+//struct AVFrame;
+extern "C" {
+#include <libavutil/frame.h>
+}
 struct AVPacket;
 #include <mutex>
 class XDecode

@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     XAudioPlay.cpp \
+    XAudioThread.cpp \
     XDecode.cpp \
     XDemux.cpp \
     XResample.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 
 HEADERS += \
     XAudioPlay.h \
+    XAudioThread.h \
     XDecode.h \
     XDemux.h \
     XPlay2.h \

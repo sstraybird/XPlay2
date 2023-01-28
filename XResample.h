@@ -10,7 +10,7 @@ class XResample
 public:
 
     //输出参数和输入参数一致除了采样格式，输出为S16 ,会释放para
-    virtual bool Open(AVCodecParameters *para);
+    virtual bool Open(AVCodecParameters *para,bool isClearPara);
     virtual void Close();
 
     //返回重采样后大小,不管成功与否都释放indata空间

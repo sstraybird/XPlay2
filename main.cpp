@@ -8,10 +8,11 @@ using namespace std;
 #include "XResample.h"
 #include <QThread>
 #include "XAudioPlay.h"
-
+#include "XAudioThread.h"
 class TestThread :public QThread
 {
 public:
+	XAudioThread at;
     void Init()
     {
         //œ„∏€Œ¿ ”
@@ -31,13 +32,16 @@ public:
         cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
         //vdecode.Clear();
         //vdecode.Close();
-        cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
-        cout << "resample.Open = " << resample.Open(demux.CopyAPara()) << endl;
+        //cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
+        //cout << "resample.Open = " << resample.Open(demux.CopyAPara(),false) << endl;
 
-        XAudioPlay::Get()->channels = demux.channels;
-        XAudioPlay::Get()->sampleRate = demux.sampleRate;
+        //XAudioPlay::Get()->channels = demux.channels;
+        //XAudioPlay::Get()->sampleRate = demux.sampleRate;
 
         cout << "XAudioPlay::Get()->Open() = " << XAudioPlay::Get()->Open()<<endl;
+
+		cout << "at.Open = " << at.Open(demux.CopyAPara(), demux.sampleRate, demux.channels);
+		at.start();
 
     }
     unsigned char *pcm = new unsigned char[1024 * 1024];
@@ -48,25 +52,30 @@ public:
             AVPacket *pkt = demux.Read();
             if (demux.IsAudio(pkt))
             {
-                adecode.Send(pkt);
-                AVFrame *frame = adecode.Recv();
-                int len = resample.Resample(frame, pcm);
-                cout<<"Resample:"<<len<<" ";
-                while (len > 0)
-                {
-                    if (XAudioPlay::Get()->GetFree() >= len)
-                    {
-                        XAudioPlay::Get()->Write(pcm, len);
-                        break;
-                    }
-                    msleep(1);
-                }
+				at.Push(pkt);
+                //adecode.Send(pkt);
+                //AVFrame *frame = adecode.Recv();
+                //int len = resample.Resample(frame, pcm);
+                //cout<<"Resample:"<<len<<" ";
+                //while (len > 0)
+                //{
+                //    if (XAudioPlay::Get()->GetFree() >= len)
+                //    {
+                //        XAudioPlay::Get()->Write(pcm, len);
+                //        break;
+                //    }
+                //    msleep(1);
+                //}
                 //cout << "Audio:" << frame << endl;
             }
             else
             {
                 vdecode.Send(pkt);
                 AVFrame *frame = vdecode.Recv();
+				if (frame != nullptr) {
+					cout << "frame pts" << frame->pts << endl;
+				}
+
                 video->Repaint(frame);
                 msleep(40);
                 //cout << "Video:" << frame << endl;
