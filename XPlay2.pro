@@ -1,4 +1,4 @@
-QT       += core gui opengl openglextensions
+QT       += core gui opengl openglextensions multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,16 +16,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    XAudioPlay.cpp \
     XDecode.cpp \
     XDemux.cpp \
+    XResample.cpp \
     XVideoWidget.cpp \
     main.cpp \
     XPlay2.cpp
 
 HEADERS += \
+    XAudioPlay.h \
     XDecode.h \
     XDemux.h \
     XPlay2.h \
+    XResample.h \
     XVideoWidget.h
 
 FORMS += \

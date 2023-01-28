@@ -5,7 +5,9 @@
 using namespace std;
 #include "XDemux.h"
 #include "XDecode.h"
+#include "XResample.h"
 #include <QThread>
+#include "XAudioPlay.h"
 
 class TestThread :public QThread
 {
@@ -30,8 +32,15 @@ public:
         //vdecode.Clear();
         //vdecode.Close();
         cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
+        cout << "resample.Open = " << resample.Open(demux.CopyAPara()) << endl;
+
+        XAudioPlay::Get()->channels = demux.channels;
+        XAudioPlay::Get()->sampleRate = demux.sampleRate;
+
+        cout << "XAudioPlay::Get()->Open() = " << XAudioPlay::Get()->Open()<<endl;
 
     }
+    unsigned char *pcm = new unsigned char[1024 * 1024];
     void run()
     {
         for (;;)
@@ -39,8 +48,19 @@ public:
             AVPacket *pkt = demux.Read();
             if (demux.IsAudio(pkt))
             {
-                //adecode.Send(pkt);
-                //AVFrame *frame = adecode.Recv();
+                adecode.Send(pkt);
+                AVFrame *frame = adecode.Recv();
+                int len = resample.Resample(frame, pcm);
+                cout<<"Resample:"<<len<<" ";
+                while (len > 0)
+                {
+                    if (XAudioPlay::Get()->GetFree() >= len)
+                    {
+                        XAudioPlay::Get()->Write(pcm, len);
+                        break;
+                    }
+                    msleep(1);
+                }
                 //cout << "Audio:" << frame << endl;
             }
             else
@@ -59,6 +79,7 @@ public:
     ///½âÂë²âÊÔ
     XDecode vdecode;
     XDecode adecode;
+    XResample resample;
     XVideoWidget *video;
 
 };
@@ -66,47 +87,6 @@ public:
 
 int main(int argc, char *argv[])
 {
-    ///²âÊÔXDemux
-//    XDemux demux;
-
-    //Ïã¸ÛÎÀÊÓ
-//    const char *url = "rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp";
-//    cout<<"demux.Open = "<<demux.Open(url) << endl;
-//    demux.Read();
-//    demux.Clear();
-//    demux.Close();
-//    url = "v1080.mp4";
-//    cout<<"demux.Open = "<<demux.Open(url);
-//    cout << "CopyVPara = " << demux.CopyVPara() << endl;
-//    cout << "CopyAPara = " << demux.CopyAPara() << endl;
-//    cout << "seek=" << demux.Seek(0.95) << endl;
-
-//    XDecode vdecode;
-//    cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
-//    vdecode.Clear();
-//    vdecode.Close();
-//    XDecode adecode;
-//    cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
-
-
-//    for (;;)
-//    {
-//        AVPacket *pkt = demux.Read();
-//        if (demux.IsAudio(pkt))
-//        {
-//            adecode.Send(pkt);
-//            AVFrame *frame = adecode.Recv();
-//            //cout << "Audio:" << frame << endl;
-//        }
-//        else
-//        {
-//            vdecode.Send(pkt);
-//            AVFrame *frame = vdecode.Recv();
-//            //cout << "Video:" << frame << endl;
-//        }
-//        if (!pkt)break;
-//    }
-
     TestThread tt;
     tt.Init();
 
