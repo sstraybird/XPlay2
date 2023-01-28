@@ -21,17 +21,20 @@ SOURCES += \
     XDecode.cpp \
     XDemux.cpp \
     XResample.cpp \
+    XVideoThread.cpp \
     XVideoWidget.cpp \
     main.cpp \
     XPlay2.cpp
 
 HEADERS += \
+    IVideoCall.h \
     XAudioPlay.h \
     XAudioThread.h \
     XDecode.h \
     XDemux.h \
     XPlay2.h \
     XResample.h \
+    XVideoThread.h \
     XVideoWidget.h
 
 FORMS += \

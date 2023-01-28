@@ -9,10 +9,12 @@ using namespace std;
 #include <QThread>
 #include "XAudioPlay.h"
 #include "XAudioThread.h"
+#include "XVideoThread.h"
 class TestThread :public QThread
 {
 public:
 	XAudioThread at;
+    XVideoThread vt;
     void Init()
     {
         //香港卫视
@@ -29,7 +31,7 @@ public:
 
         /////////////////////////////
 
-        cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
+//        cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVPara()) << endl;
         //vdecode.Clear();
         //vdecode.Close();
         //cout << "adecode.Open() = " << adecode.Open(demux.CopyAPara()) << endl;
@@ -41,7 +43,9 @@ public:
         cout << "XAudioPlay::Get()->Open() = " << XAudioPlay::Get()->Open()<<endl;
 
 		cout << "at.Open = " << at.Open(demux.CopyAPara(), demux.sampleRate, demux.channels);
+        vt.Open(demux.CopyVPara(), video, demux.width, demux.height);
 		at.start();
+        vt.start();
 
     }
     unsigned char *pcm = new unsigned char[1024 * 1024];
@@ -70,26 +74,32 @@ public:
             }
             else
             {
-                vdecode.Send(pkt);
-                AVFrame *frame = vdecode.Recv();
-				if (frame != nullptr) {
-					cout << "frame pts" << frame->pts << endl;
-				}
+                vt.Push(pkt);
+//                vdecode.Send(pkt);
+//                AVFrame *frame = vdecode.Recv();
+//				if (frame != nullptr) {
+//					cout << "frame pts" << frame->pts << endl;
+//				}
 
-                video->Repaint(frame);
-                msleep(40);
+//                video->Repaint(frame);
+//                msleep(40);
                 //cout << "Video:" << frame << endl;
             }
             if (!pkt)break;
+            if (!pkt)
+            {
+                demux.Seek(0);
+                //break;
+            }
         }
     }
     ///测试XDemux
     XDemux demux;
     ///解码测试
-    XDecode vdecode;
-    XDecode adecode;
-    XResample resample;
-    XVideoWidget *video;
+//    XDecode vdecode;
+//    XDecode adecode;
+//    XResample resample;
+    XVideoWidget *video=0;
 
 };
 
@@ -97,16 +107,17 @@ public:
 int main(int argc, char *argv[])
 {
     TestThread tt;
-    tt.Init();
 
     QApplication a(argc, argv);
     XPlay2 w;
     w.show();
 
     //初始化gl窗口
-    w.getVideo()->Init(tt.demux.width,tt.demux.height) ;
+//    w.getVideo()->Init(tt.demux.width,tt.demux.height) ;
 
     tt.video = w.getVideo();
+    tt.Init();
+
     tt.start();
     return a.exec();
 }
