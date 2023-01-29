@@ -122,7 +122,9 @@ int main(int argc, char *argv[])
 //    tt.start();
 
     XDemuxThread dt;
-    dt.Open("v1080.mp4", w.getVideo());
+	const char *url = "rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp";
+	url = "demo2.mp4";
+    dt.Open(url, w.getVideo());
     dt.Start();
     return a.exec();
 }

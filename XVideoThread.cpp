@@ -2,12 +2,12 @@
 #include "XDecode.h"
 #include <iostream>
 using namespace std;
-//打开，不管成功与否都清理
+//打开，不管成功与否都清理 
 bool XVideoThread::Open(AVCodecParameters *para, IVideoCall *call,int width,int height)
 {
     if (!para)return false;
     mux.lock();
-
+	synpts = 0;
     //初始化显示窗口
     this->call = call;
     if (call)
@@ -59,6 +59,14 @@ void XVideoThread::run()
             msleep(1);
             continue;
         }
+
+		//音视频同步
+		if (synpts < decode->pts)
+		{
+			mux.unlock();
+			//msleep(1);
+			continue;
+		}
 
         AVPacket *pkt = packs.front();
         packs.pop_front();
